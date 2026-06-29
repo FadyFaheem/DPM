@@ -1,32 +1,28 @@
-# Cloudflare Tunnel configuration for project dev environment
-# Exposes the local dev environment at dev-project.faheemlabs.com
+# Cloudflare Tunnel configuration for the dev environment.
+# Exposes the local dev environment at dms-dev.faheemlabs.com
 #
-# Setup:
-#   1. cloudflared tunnel login
-#   2. cloudflared tunnel create project-dev
-#   3. Copy the credentials JSON to infra/cloudflared/creds/<TUNNEL_UUID>.json
-#   4. Replace the tunnel UUID below with your actual tunnel UUID
-#   5. Create the DNS record:
-#      cloudflared tunnel route dns project-dev dev-project.faheemlabs.com
+# Tunnel: dms-dev
+# The credentials file is mounted into the cloudflared container at
+# /etc/cloudflared/creds (the pod mounts ./cloudflared -> /etc/cloudflared).
 
-tunnel: <TUNNEL_UUID>
-credentials-file: /etc/cloudflared/creds/<TUNNEL_UUID>.json
+tunnel: a30a7c7b-5ad1-438c-9acc-18d230f51b23
+credentials-file: /etc/cloudflared/creds/a30a7c7b-5ad1-438c-9acc-18d230f51b23.json
 
 ingress:
-  # API requests: route /api/... to Flask backend on port 5000
-  - hostname: dev-project.faheemlabs.com
+  # API requests: route /api/... to the Rails backend on port 5000
+  - hostname: dms-dev.faheemlabs.com
     path: "^/api/.*"
     service: http://localhost:5000
     originRequest:
       noTLSVerify: true
 
   # Health check endpoint on the API
-  - hostname: dev-project.faheemlabs.com
+  - hostname: dms-dev.faheemlabs.com
     path: /health
     service: http://localhost:5000
 
   # All other traffic goes to the Vite dev frontend on port 3000
-  - hostname: dev-project.faheemlabs.com
+  - hostname: dms-dev.faheemlabs.com
     service: http://localhost:3000
     originRequest:
       noTLSVerify: true

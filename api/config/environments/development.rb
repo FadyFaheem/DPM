@@ -6,6 +6,9 @@ Rails.application.configure do
   # Make code changes take effect immediately without server restart.
   config.enable_reloading = true
 
+  # Allow the Cloudflare dev tunnel hostname through host authorization.
+  config.hosts << "dms-dev.faheemlabs.com"
+
   # Do not eager load code on boot.
   config.eager_load = false
 
