@@ -16,9 +16,6 @@ podman stats project-dev-pod-rails-api --no-stream
 #Check Rails API container details
 podman inspect project-dev-pod-rails-api
 
-#Pretty print API health response
-curl -s http://localhost:5000/health | python -m json.tool || curl -s http://localhost:5000/health | python3 -m json.tool
-
 #Open a Rails console inside the API container
 podman exec -w /app -it project-dev-pod-rails-api bundle exec rails console
 
