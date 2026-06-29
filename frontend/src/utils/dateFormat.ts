@@ -37,6 +37,10 @@ export function formatDateTime(iso: string | null | undefined): string {
 export function formatDate(iso: string | null | undefined): string {
   if (!iso) return '';
   try {
+    if (ISO_DATE_RE.test(iso)) {
+      const [y, m, d] = iso.split('-').map((v) => Number(v));
+      return dateOnlyFormatter.format(new Date(y, m - 1, d));
+    }
     return dateOnlyFormatter.format(new Date(iso));
   } catch {
     return iso;
