@@ -5,7 +5,7 @@ podman exec -it project-dev-pod-postgres-db psql -U postgres -d project-dev-db
 podman exec -it project-dev-pod-postgres-db psql -U postgres -d project-dev-db -c "SELECT version, applied_at FROM schema_migrations ORDER BY version;"
 
 #Run migrations manually (if needed)
-cat infra/database/*.sql | podman exec -i project-dev-pod-postgres-db psql -U postgres -d project-dev-db
+ls infra/database/*.sql | sort | grep -v '/000' | xargs -I{} sh -c 'echo "-- Running {}"; cat "{}"' | podman exec -i project-dev-pod-postgres-db psql -U postgres -d project-dev-db
 
 #Run specific migration file
 read -p "Enter migration filename (e.g., 001-schema.sql): " filename && podman exec -i project-dev-pod-postgres-db psql -U postgres -d project-dev-db < infra/database/$filename
