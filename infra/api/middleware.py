@@ -26,7 +26,8 @@ def is_admin_role(role):
 
 
 def _get_jwt_secret():
-    return os.environ['JWT_SECRET_KEY']
+    from flask import current_app
+    return current_app.config['JWT_SECRET_KEY']
 
 
 def decode_token(token):
