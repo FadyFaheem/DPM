@@ -55,8 +55,8 @@ Desktop.ini
 logs/
 *.log
 
-# Cloudflare tunnel credentials (also covered by infra/cloudflared/creds/.gitignore)
-infra/cloudflared/creds/*.json
+# Cloudflare tunnel credentials (also covered by cloudflared/creds/.gitignore)
+cloudflared/creds/*.json
 
 # Rails API (api/)
 /api/tmp/

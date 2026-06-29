@@ -36,15 +36,15 @@ spec:
       volumeMounts:
         - name: pgdata
           mountPath: /var/lib/postgresql
-        - name: db-init
-          mountPath: /docker-entrypoint-initdb.d
-          readOnly: true
 
-    # Flask API (Python-based)
-    - name: flask-api
-      image: docker.io/python:3.11-slim
+    # Rails API (Ruby-based)
+    - name: rails-api
+      image: docker.io/ruby:3.3
       command: ["/bin/sh"]
-      args: ["-c", "pip install --quiet --no-cache-dir -r /app/requirements.txt && exec python /app/app.py"]
+      # Install libpq, bundle gems, then boot Rails. Gems install on each start
+      # (mirrors the previous pip-on-start pattern); add `rails db:prepare &&`
+      # before the server once you introduce migrations.
+      args: ["-c", "cd /app && apt-get update && apt-get install -y --no-install-recommends libpq-dev && bundle install && exec bundle exec rails server -b 0.0.0.0 -p 5000"]
       env:
         - name: DB_HOST
           value: localhost
@@ -56,28 +56,20 @@ spec:
           value: postgres
         - name: DB_PASSWORD
           value: postgres
-        - name: FLASK_ENV
+        - name: RAILS_ENV
           value: development
         - name: PORT
           value: "5000"
-        # Secrets -- override for any non-local use.
-        - name: SECRET_KEY
-          value: dev-secret-key-change-in-production
-        - name: JWT_SECRET_KEY
-          value: dev-jwt-secret-change-in-production
-        # Tells db.run_migrations() where to find numbered SQL migrations.
-        - name: MIGRATIONS_DIR
-          value: /migrations
+        # Rails secret_key_base -- override for any non-local use.
+        - name: SECRET_KEY_BASE
+          value: dev-secret-key-base-change-in-production
       ports:
         - containerPort: 5000
           hostPort: 5000
       volumeMounts:
+        # Read-write: Rails writes to tmp/ and log/.
         - name: api-code
           mountPath: /app
-          readOnly: true
-        - name: db-init
-          mountPath: /migrations
-          readOnly: true
         # Mount host resolv.conf for DNS resolution
         - name: host-resolv
           mountPath: /etc/resolv.conf
@@ -106,7 +98,7 @@ spec:
 
     # Cloudflare Tunnel — exposes dev environment via cloudflared.
     # No inbound ports needed; cloudflared establishes outbound connections to Cloudflare's edge.
-    # Setup: see infra/cloudflared/config.yml for one-time instructions.
+    # Setup: see cloudflared/config.yml for one-time instructions.
     - name: cloudflared
       image: cloudflare/cloudflared:latest
       command: ["cloudflared"]
@@ -121,18 +113,13 @@ spec:
     - name: pgdata
       persistentVolumeClaim:
         claimName: project-dev-db-data-claim
-    - name: db-init
-      hostPath:
-        # TODO: Update this path to match your project location
-        # Windows WSL: /mnt/c/PATH/TO/PROJECT/infra/database
-        # Linux: /path/to/project/infra/database
-        # macOS: /Users/username/path/to/project/infra/database
-        path: /mnt/c/PROJECT_NAME/infra/database
-        type: Directory
     - name: api-code
       hostPath:
         # TODO: Update this path to match your project location
-        path: /mnt/c/PROJECT_NAME/infra/api
+        # Windows WSL: /mnt/c/PATH/TO/PROJECT/api
+        # Linux: /path/to/project/api
+        # macOS: /Users/username/path/to/project/api
+        path: /mnt/c/PROJECT_NAME/api
         type: Directory
     - name: frontend-code
       hostPath:
@@ -148,7 +135,7 @@ spec:
     - name: cloudflared-config
       hostPath:
         # TODO: Update this path to match your project location
-        path: /mnt/c/PROJECT_NAME/infra/cloudflared
+        path: /mnt/c/PROJECT_NAME/cloudflared
         type: Directory
 
 ---

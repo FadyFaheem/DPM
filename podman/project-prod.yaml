@@ -37,15 +37,14 @@ spec:
       volumeMounts:
         - name: pgdata
           mountPath: /var/lib/postgresql
-        - name: db-init
-          mountPath: /docker-entrypoint-initdb.d
-          readOnly: true
 
-    # Flask API (Python-based)
-    - name: flask-api
-      image: docker.io/python:3.11-slim
+    # Rails API (Ruby-based)
+    - name: rails-api
+      image: docker.io/ruby:3.3
       command: ["/bin/sh"]
-      args: ["-c", "pip install --quiet --no-cache-dir -r /app/requirements.txt && exec gunicorn --bind 0.0.0.0:5000 --workers 2 --access-logfile - --error-logfile - app:app"]
+      # Install libpq, bundle gems, then boot Rails. Add `rails db:prepare &&`
+      # before the server once you introduce migrations.
+      args: ["-c", "cd /app && apt-get update && apt-get install -y --no-install-recommends libpq-dev && bundle install && exec bundle exec rails server -b 0.0.0.0 -p 5000"]
       env:
         - name: DB_HOST
           value: localhost
@@ -57,26 +56,19 @@ spec:
           value: postgres
         - name: DB_PASSWORD
           value: CHANGE-ME-postgres-password
-        - name: FLASK_ENV
+        - name: RAILS_ENV
           value: production
         - name: PORT
           value: "5000"
-        # TODO: Replace these with strong random values (e.g. `python -c "import secrets;print(secrets.token_hex(32))"`).
-        - name: SECRET_KEY
-          value: CHANGE-ME-flask-secret
-        - name: JWT_SECRET_KEY
-          value: CHANGE-ME-jwt-secret
-        - name: MIGRATIONS_DIR
-          value: /migrations
+        # TODO: Replace with a strong random value (e.g. `openssl rand -hex 64`).
+        - name: SECRET_KEY_BASE
+          value: CHANGE-ME-secret-key-base
       # Note: ports section removed - with hostNetwork: true, containers use host network directly.
-      # Flask API will be accessible on port 5000 on the host.
+      # Rails API will be accessible on port 5000 on the host.
       volumeMounts:
+        # Read-write: Rails writes to tmp/ and log/.
         - name: api-code
           mountPath: /app
-          readOnly: true
-        - name: db-init
-          mountPath: /migrations
-          readOnly: true
         - name: host-resolv
           mountPath: /etc/resolv.conf
           readOnly: true
@@ -89,7 +81,7 @@ spec:
       args: ["-c", "cd /app && npm install && npm run build && npx -y serve -s dist -l 80"]
       env:
         # VITE_API_URL is not set -- the frontend uses window.location.origin so /api/* hits
-        # whatever host served the page (cloudflared routes /api/* to the Flask API).
+        # whatever host served the page (cloudflared routes /api/* to the Rails API).
         - name: HOST
           value: "0.0.0.0"
         - name: PORT
@@ -103,7 +95,7 @@ spec:
           readOnly: true
 
     # Cloudflare Tunnel — exposes prod environment via cloudflared.
-    # Setup: see infra/cloudflared/config.prod.yml for one-time instructions.
+    # Setup: see cloudflared/config.prod.yml for one-time instructions.
     - name: cloudflared
       image: cloudflare/cloudflared:latest
       command: ["cloudflared"]
@@ -118,14 +110,10 @@ spec:
     - name: pgdata
       persistentVolumeClaim:
         claimName: project-prod-db-data-claim
-    - name: db-init
-      hostPath:
-        # TODO: Update this path to match your project location on the prod host.
-        path: /home/ubuntu/PROJECT_NAME/infra/database
-        type: Directory
     - name: api-code
       hostPath:
-        path: /home/ubuntu/PROJECT_NAME/infra/api
+        # TODO: Update this path to match your project location on the prod host.
+        path: /home/ubuntu/PROJECT_NAME/api
         type: Directory
     - name: frontend-code
       hostPath:
@@ -137,7 +125,7 @@ spec:
         type: File
     - name: cloudflared-config
       hostPath:
-        path: /home/ubuntu/PROJECT_NAME/infra/cloudflared
+        path: /home/ubuntu/PROJECT_NAME/cloudflared
         type: Directory
 
 ---
