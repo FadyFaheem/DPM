@@ -33,7 +33,8 @@ SESSION_MAX_DAYS = int(os.getenv('SESSION_MAX_DAYS', 30))
 
 
 def _jwt_secret():
-    return os.environ['JWT_SECRET_KEY']
+    from flask import current_app
+    return current_app.config['JWT_SECRET_KEY']
 
 
 def _create_tokens(user, session_exp_ts=None):
