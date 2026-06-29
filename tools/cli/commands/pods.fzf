@@ -71,6 +71,6 @@ podman logs project-prod-pod-postgres-db && podman logs project-prod-pod-flask-a
 #Check if required images are pulled
 podman images | grep -E "(node|postgres|python|cloudflared)"
 
-#Fix TLS certificate issues - configure registry to skip TLS verification
-mkdir -p ~/.config/containers && echo -e '[[registry]]\nlocation = "docker.io"\ninsecure = true' > ~/.config/containers/registries.conf && echo "Registry configured. You may need to restart Podman."
+#Fix TLS certificate issues - configure registry to skip TLS verification (USE WITH CAUTION)
+mkdir -p ~/.config/containers && { test -f ~/.config/containers/registries.conf && cp ~/.config/containers/registries.conf ~/.config/containers/registries.conf.bak.$(date +%s); } && printf '%s\n' '[[registry]]' 'location = "docker.io"' 'insecure = true' > ~/.config/containers/registries.conf && echo "Registry configured (docker.io marked insecure). Restart Podman. Backup saved if an existing config was present."
 
