@@ -84,6 +84,13 @@ export interface FoodProductionState {
   catalog: FoodBuildingCatalogEntry[];
 }
 
+export interface ParkEvent {
+  id: number;
+  kind: string;
+  message: string;
+  created_at: string;
+}
+
 export interface Player {
   id: number;
   player_code: string;
@@ -95,6 +102,7 @@ export interface Player {
   summary: ParkSummary;
   research: ResearchState;
   food_productions: FoodProductionState;
+  events: ParkEvent[];
 }
 
 export function createPlayer(): Promise<Player> {
