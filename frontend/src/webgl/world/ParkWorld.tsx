@@ -104,9 +104,12 @@ export default function ParkWorld({
           <HazardMarker key={l.id} position={[l.x, l.z]} color={HAZARD_COLOR} />
         ))}
 
+      {/* Left-drag orbits; hold right-click to pan (move left/right/up/down). */}
       <OrbitControls
         target={[0, 0, 0]}
-        enablePan={false}
+        enablePan
+        screenSpacePanning
+        panSpeed={1}
         minDistance={6}
         maxDistance={extent + 30}
         maxPolarAngle={Math.PI / 2.2}
