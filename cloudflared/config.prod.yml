@@ -9,21 +9,21 @@ tunnel: 1128f81e-cb81-4423-a086-2690aacc0ad1
 credentials-file: /etc/cloudflared/creds/1128f81e-cb81-4423-a086-2690aacc0ad1.json
 
 ingress:
-  # API requests: route /api/... to the Rails backend on port 5001
+  # API requests: route /api/... to the Rails backend on port 5020
   - hostname: dms.faheemlabs.com
     path: "^/api/.*"
-    service: http://localhost:5001
+    service: http://localhost:5020
     originRequest:
       noTLSVerify: true
 
   # Health check endpoint on the API
   - hostname: dms.faheemlabs.com
     path: /health
-    service: http://localhost:5001
+    service: http://localhost:5020
 
-  # All other traffic goes to the frontend on port 8080
+  # All other traffic goes to the frontend on port 3020
   - hostname: dms.faheemlabs.com
-    service: http://localhost:8080
+    service: http://localhost:3020
     originRequest:
       noTLSVerify: true
 

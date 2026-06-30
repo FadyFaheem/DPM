@@ -25,9 +25,9 @@ podman pod rm -f dpm-dev-pod && podman volume rm dpm-dev-db-data-claim
 
 | Container | Image | Dev port | Prod port | Purpose |
 |-----------|-------|----------|-----------|---------|
-| `postgres-db` | `postgres:latest` | 5432 | 5433 | Database |
-| `rails-api` | `ruby:3.3` | 5000 | 5001 | REST API (Rails + Puma) |
-| `react-frontend` | `node:20-alpine` | 3000 (vite dev) | 8080 (built + `serve`) | Web UI |
+| `postgres-db` | `postgres:latest` | 5432 | 5452 | Database |
+| `rails-api` | `ruby:3.3` | 5000 | 5020 | REST API (Rails + Puma) |
+| `react-frontend` | `node:20-alpine` | 3000 (vite dev) | 3020 (built + `serve`) | Web UI |
 | `cloudflared` | `cloudflare/cloudflared` | — | — | Public tunnel |
 
 The dev pod uses normal port mappings; the prod pod uses `hostNetwork: true`
