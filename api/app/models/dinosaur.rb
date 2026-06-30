@@ -32,6 +32,15 @@ class Dinosaur < ApplicationRecord
     alive && health >= 60 && reproduction_readiness >= 100
   end
 
+  def age_months(now = Time.current)
+    GameClock.age_months(born_at, now).floor
+  end
+
+  # Coarse herbivore/carnivore grouping used by DinoReport summaries.
+  def legacy_category
+    diet_primary == "meat" ? "carnivore" : "herbivore"
+  end
+
   def species_entry
     Species.find(species)
   end

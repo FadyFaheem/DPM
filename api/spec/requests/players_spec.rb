@@ -22,7 +22,9 @@ RSpec.describe "Api::Players", type: :request do
       get "/api/players/me", headers: { "Authorization" => "Bearer #{code}" }
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)["player_code"]).to eq(code)
+      body = JSON.parse(response.body)
+      expect(body["player_code"]).to eq(code)
+      expect(body["summary"]["population"]).to eq(Species.starters.size)
     end
 
     it "401s without a valid code" do

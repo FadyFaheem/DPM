@@ -5,7 +5,8 @@ module GameSerializer
 
   def player(player)
     dinos = player.dinosaurs.order(:id).to_a
-    living_by_habitat = dinos.select(&:alive).group_by(&:habitat_id).transform_values(&:size)
+    living = dinos.select(&:alive)
+    living_by_habitat = living.group_by(&:habitat_id).transform_values(&:size)
 
     {
       id: player.id,
@@ -15,8 +16,23 @@ module GameSerializer
       food: { plants: player.food_plants, meat: player.food_meat, fish: player.food_fish },
       habitats: player.habitats.order(:id).map { |h| habitat(h, living_by_habitat[h.id] || 0) },
       dinosaurs: dinos.map { |d| dinosaur(d) },
+      summary: summary(living),
       created_at: iso(player.created_at),
       updated_at: iso(player.updated_at)
+    }
+  end
+
+  # Dashboard summary; population-by-category is produced by DinoReport.
+  def summary(living, now = Time.current)
+    rows = living.map do |d|
+      { "category" => d.legacy_category, "diet" => d.diet_primary, "age" => d.age_months(now) }
+    end
+
+    {
+      population: living.size,
+      by_category: DinoReport.call(rows)[:summary],
+      avg_health: living.empty? ? 0.0 : (living.sum(&:health) / living.size).round(1),
+      critical: living.count { |d| d.health < 25 }
     }
   end
 
