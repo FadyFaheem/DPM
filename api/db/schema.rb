@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_30_030200) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_30_040000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -150,6 +150,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_030200) do
     t.index ["player_id"], name: "index_researches_on_player_id"
   end
 
+  create_table "species_unlocks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "player_id", null: false
+    t.string "species_key", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "species_key"], name: "index_species_unlocks_on_player_id_and_species_key", unique: true
+    t.index ["player_id"], name: "index_species_unlocks_on_player_id"
+  end
+
   create_table "structures", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "kind", null: false
@@ -176,5 +185,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_030200) do
   add_foreign_key "food_productions", "players"
   add_foreign_key "habitats", "players"
   add_foreign_key "researches", "players"
+  add_foreign_key "species_unlocks", "players"
   add_foreign_key "structures", "players"
 end

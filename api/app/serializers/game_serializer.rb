@@ -18,6 +18,7 @@ module GameSerializer
       dinosaurs: dinos.map { |d| dinosaur(d) },
       summary: summary(living),
       research: research(player),
+      species: species(player),
       food_productions: food_productions(player),
       structures: structures(player),
       active_effects: active_effects(player),
@@ -68,6 +69,37 @@ module GameSerializer
           requires_population: tech.requires_population,
           unlocks: tech.unlocks,
           unlocked: unlocked.include?(tech.key)
+        }
+      end
+    }
+  end
+
+  # Species catalog with per-player flags: `unlocked` (a starter or previously
+  # acquired) and `owned_count` (living specimens). Acquisition gates
+  # (acquire_cost / required_tech / requires_population) are surfaced so the
+  # client can render lock state, mirroring the research tree.
+  def species(player)
+    unlocked_keys = player.species_unlocks.pluck(:species_key)
+    owned = player.dinosaurs.alive.group_by(&:species).transform_values(&:size)
+    {
+      periods: Species::PERIODS,
+      catalog: Species.all.map do |s|
+        {
+          key: s.key,
+          name: s.name,
+          period: s.period,
+          diet_primary: s.diet_primary,
+          diet_secondary: s.diet_secondary,
+          preferred_terrain: s.preferred_terrain,
+          social_structure: s.social_structure,
+          base_size_lbs: s.base_size_lbs,
+          rarity: s.rarity,
+          starter: s.starter,
+          acquire_cost: s.acquire_cost,
+          required_tech: s.required_tech,
+          requires_population: s.requires_population,
+          unlocked: s.starter || unlocked_keys.include?(s.key),
+          owned_count: owned[s.key] || 0
         }
       end
     }
