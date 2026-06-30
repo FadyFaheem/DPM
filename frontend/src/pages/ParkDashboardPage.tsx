@@ -28,11 +28,14 @@ import { useGame } from '../context/PlayerContext';
 import type { Dinosaur, ParkEvent } from '../api/players';
 import { feedDino } from '../api/dinosaurs';
 import { buyFood } from '../api/food';
+import { stockHabitat } from '../api/habitats';
 import { statusColor } from '../utils/status';
 import { formatDateTime } from '../utils/dateFormat';
 import DinoInspector from '../components/DinoInspector';
 import BreedingModal from '../components/BreedingModal';
 import ActiveEventsPanel from '../components/ActiveEventsPanel';
+import ParkMap from '../components/ParkMap';
+import DinoPortrait from '../components/DinoPortrait';
 
 export default function ParkDashboardPage() {
   const { player, refresh } = useGame();
@@ -97,6 +100,17 @@ export default function ParkDashboardPage() {
         effects={player.active_effects ?? []}
         habitats={player.habitats}
         farms={player.food_productions?.buildings ?? []}
+      />
+
+      <ParkMap
+        habitats={player.habitats}
+        dinosaurs={player.dinosaurs}
+        activeEffects={player.active_effects ?? []}
+        onStock={async (habitatId, amount) => {
+          await stockHabitat(habitatId, amount);
+          await refresh();
+        }}
+        onInspectDino={(dino) => setInspected(dino)}
       />
 
       <Typography variant="h6" gutterBottom>
@@ -237,9 +251,17 @@ function DinoCard({
     <Card>
       <CardContent>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="subtitle1" noWrap>
-            {dino.name}
-          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
+            <DinoPortrait
+              species={dino.species}
+              color={dino.color}
+              id={dino.id}
+              alive={dino.alive}
+            />
+            <Typography variant="subtitle1" noWrap>
+              {dino.name}
+            </Typography>
+          </Stack>
           <Chip size="small" label={dino.status} color={statusColor(dino.status)} />
         </Stack>
         <Typography variant="caption" color="text.secondary">

@@ -16,6 +16,7 @@ import type { Dinosaur, Habitat } from '../api/players';
 import { feedDino, moveDino, treatDino, quarantineDino } from '../api/dinosaurs';
 import { statusColor } from '../utils/status';
 import { formatDateTime } from '../utils/dateFormat';
+import DinoPortrait from './DinoPortrait';
 
 const DIETS = ['plants', 'meat', 'fish', 'insects'];
 
@@ -58,10 +59,21 @@ export default function DinoInspector({
       <Box sx={{ width: { xs: '100vw', sm: 380 }, p: 3 }}>
         {dino && (
           <>
-            <Typography variant="h5">{dino.name}</Typography>
-            <Typography color="text.secondary" gutterBottom>
-              {dino.species} · {dino.period}
-            </Typography>
+            <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 0.5 }}>
+              <DinoPortrait
+                species={dino.species}
+                color={dino.color}
+                id={dino.id}
+                size={56}
+                alive={dino.alive}
+              />
+              <Box>
+                <Typography variant="h5">{dino.name}</Typography>
+                <Typography color="text.secondary">
+                  {dino.species} · {dino.period}
+                </Typography>
+              </Box>
+            </Stack>
             <Stack direction="row" spacing={1} sx={{ mb: 2 }} flexWrap="wrap" useFlexGap>
               <Chip size="small" label={dino.status} color={statusColor(dino.status)} />
               <Chip size="small" label={dino.gender} />
