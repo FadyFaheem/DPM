@@ -50,6 +50,16 @@ RSpec.describe "Api::Breedings", type: :request do
       expect(response).to have_http_status(:created)
       expect(Breeding.last.requested_trait).to eq("giant")
     end
+
+    it "incubates faster when a hatchery is built" do
+      player.structures.create!(kind: "hatchery")
+
+      post "/api/breedings", params: { parent_a_id: dad.id, parent_b_id: mom.id }, headers: headers
+
+      expect(response).to have_http_status(:created)
+      hatches_at = Time.zone.parse(JSON.parse(response.body)["hatches_at"])
+      expect(hatches_at).to be_within(5.minutes).of(Time.current + GameClock.real_seconds_for_game_days(1))
+    end
   end
 
   describe "POST /api/breedings/:id/claim" do

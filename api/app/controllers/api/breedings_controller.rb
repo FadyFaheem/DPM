@@ -1,6 +1,8 @@
 module Api
   class BreedingsController < BaseController
     INCUBATION_GAME_DAYS = 2
+    # A built hatchery shortens incubation to this many game-days.
+    HATCHERY_INCUBATION_GAME_DAYS = 1
 
     rescue_from ActiveRecord::RecordNotFound do
       render json: { error: "Dinosaur or breeding not found" }, status: :not_found
@@ -61,11 +63,15 @@ module Api
         current_player.breedings.create!(
           parent_a: parent_a,
           parent_b: parent_b,
-          hatches_at: Time.current + GameClock.real_seconds_for_game_days(INCUBATION_GAME_DAYS),
+          hatches_at: Time.current + GameClock.real_seconds_for_game_days(incubation_game_days),
           status: "incubating",
           requested_trait: requested_trait
         )
       end
+    end
+
+    def incubation_game_days
+      current_player.structure?("hatchery") ? HATCHERY_INCUBATION_GAME_DAYS : INCUBATION_GAME_DAYS
     end
 
     def breeding_json(breeding)

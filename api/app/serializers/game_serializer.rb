@@ -21,6 +21,7 @@ module GameSerializer
       species: species(player),
       food_productions: food_productions(player),
       structures: structures(player),
+      attractions: attractions(player),
       active_effects: active_effects(player),
       events: events(player),
       created_at: iso(player.created_at),
@@ -157,6 +158,36 @@ module GameSerializer
           required_tech: spec.required_tech,
           unlocked: unlocked.include?(spec.required_tech),
           built: built.include?(spec.kind)
+        }
+      end
+    }
+  end
+
+  # Theme-park attractions: the player's built attractions (with current
+  # income/day) plus the catalog of buildable kinds, gated by the `attractions`
+  # research.
+  def attractions(player)
+    unlocked = player.researches.pluck(:tech_key)
+    {
+      built: player.attractions.order(:id).map do |a|
+        spec = AttractionCatalog.find(a.kind)
+        {
+          id: a.id,
+          kind: a.kind,
+          name: spec&.name,
+          level: a.level,
+          income_per_day: spec ? spec.income_per_day * a.level : 0,
+          last_collected_at: iso(a.last_collected_at)
+        }
+      end,
+      catalog: AttractionCatalog.all.map do |spec|
+        {
+          kind: spec.kind,
+          name: spec.name,
+          income_per_day: spec.income_per_day,
+          build_cost: spec.build_cost,
+          required_tech: spec.required_tech,
+          unlocked: unlocked.include?(spec.required_tech)
         }
       end
     }

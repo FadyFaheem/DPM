@@ -54,5 +54,15 @@ RSpec.describe "Api::Researches", type: :request do
       post "/api/researches", params: { tech_key: "plant_farming" }, headers: headers
       expect(response).to have_http_status(:unprocessable_entity)
     end
+
+    it "discounts the cost when a research station is built" do
+      player.structures.create!(kind: "research_station")
+      discounted = Economy.research_cost(ResearchCatalog.find("plant_farming").cost, research_station: true)
+
+      post "/api/researches", params: { tech_key: "plant_farming" }, headers: headers
+
+      expect(response).to have_http_status(:created)
+      expect(player.reload.currency).to eq(10_000 - discounted)
+    end
   end
 end

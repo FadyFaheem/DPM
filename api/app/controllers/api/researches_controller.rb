@@ -14,7 +14,7 @@ module Api
       return render json: { error: error }, status: :unprocessable_entity if error
 
       current_player.transaction do
-        current_player.update!(currency: current_player.currency - tech.cost)
+        current_player.update!(currency: current_player.currency - cost_for(tech))
         current_player.researches.create!(tech_key: tech.key)
         Event.log(current_player, "research", "Researched #{tech.name}")
       end
@@ -23,6 +23,11 @@ module Api
     end
 
     private
+
+    # A research station discounts the tech's listed cost.
+    def cost_for(tech)
+      Economy.research_cost(tech.cost, research_station: current_player.structure?("research_station"))
+    end
 
     # Returns a human-readable reason the tech can't be unlocked, or nil if it can.
     def unlock_error(tech)
@@ -37,7 +42,7 @@ module Api
         return "Requires #{tech.requires_population} living dinosaurs"
       end
 
-      "Not enough currency" if current_player.currency < tech.cost
+      "Not enough currency" if current_player.currency < cost_for(tech)
     end
   end
 end
