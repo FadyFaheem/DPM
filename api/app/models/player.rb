@@ -3,6 +3,7 @@ class Player < ApplicationRecord
   has_many :dinosaurs, dependent: :destroy
   has_many :breedings, dependent: :destroy
   has_many :researches, dependent: :destroy
+  has_many :food_productions, dependent: :destroy
 
   # Maps a diet to the food store it draws from (insects forage from plants).
   FOOD_COLUMN = {

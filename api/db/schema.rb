@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_30_010000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_30_010100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,6 +63,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_010000) do
     t.index ["player_id"], name: "index_dinosaurs_on_player_id"
   end
 
+  create_table "food_productions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "kind", null: false
+    t.datetime "last_collected_at"
+    t.integer "level", default: 1, null: false
+    t.bigint "player_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "kind"], name: "index_food_productions_on_player_id_and_kind"
+    t.index ["player_id"], name: "index_food_productions_on_player_id"
+  end
+
   create_table "habitats", force: :cascade do |t|
     t.integer "capacity", default: 6, null: false
     t.datetime "created_at", null: false
@@ -104,6 +115,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_010000) do
   add_foreign_key "dinosaurs", "dinosaurs", column: "parent_b_id"
   add_foreign_key "dinosaurs", "habitats"
   add_foreign_key "dinosaurs", "players"
+  add_foreign_key "food_productions", "players"
   add_foreign_key "habitats", "players"
   add_foreign_key "researches", "players"
 end

@@ -22,6 +22,10 @@ Rails.application.routes.draw do
 
     resources :researches, only: [ :index, :create ]
 
+    resources :food_productions, only: [ :index, :create ] do
+      post :upgrade, on: :member
+    end
+
     resource :food, only: [ :create ], controller: "food"
 
     resources :breedings, only: [ :index, :create ] do

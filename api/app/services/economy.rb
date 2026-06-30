@@ -11,8 +11,14 @@ module Economy
     "aquatic" => 7_000
   }.freeze
   DEFAULT_HABITAT_COST = 5_000
+  FOOD_PRODUCTION_UPGRADE_BASE = 1_500
 
   module_function
+
+  # Cost to raise a food-production building from `level` to `level + 1`.
+  def food_production_upgrade_cost(level)
+    FOOD_PRODUCTION_UPGRADE_BASE * level
+  end
 
   def passive_income(player, now: Time.current)
     since = player.last_income_at || player.created_at
