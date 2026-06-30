@@ -5,6 +5,7 @@ import AppLayout from './components/AppLayout';
 import ParkDashboardPage from './pages/ParkDashboardPage';
 import HabitatsPage from './pages/HabitatsPage';
 import ResearchPage from './pages/ResearchPage';
+import ProductionPage from './pages/ProductionPage';
 import ProfilePage from './pages/ProfilePage';
 import { appTheme } from './theme/theme';
 
@@ -35,6 +36,7 @@ function GameRoutes() {
         <Route index element={<ParkDashboardPage />} />
         <Route path="habitats" element={<HabitatsPage />} />
         <Route path="research" element={<ResearchPage />} />
+        <Route path="production" element={<ProductionPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
