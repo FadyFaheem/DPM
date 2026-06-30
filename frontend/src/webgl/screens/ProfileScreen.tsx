@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Container, Text } from '@react-three/uikit';
 import { Button, Card, Input } from '@react-three/uikit-default';
 import { useWebgl } from '../WebglState';
+import { useTutorial } from '../TutorialContext';
 import { BRAND_COLORS } from '../../theme/theme';
 import ScreenScaffold from '../ui/ScreenScaffold';
 
@@ -9,6 +10,7 @@ import ScreenScaffold from '../ui/ScreenScaffold';
 // code (login).
 export default function ProfileScreen() {
   const { game } = useWebgl();
+  const tutorial = useTutorial();
   const player = game.player;
   const [code, setCode] = useState('');
   const [copied, setCopied] = useState(false);
@@ -78,6 +80,20 @@ export default function ProfileScreen() {
             {error}
           </Text>
         )}
+      </Card>
+
+      <Card flexDirection="column" gap={8} padding={16} width={420}>
+        <Text fontSize={16} fontWeight="bold">
+          Tutorial
+        </Text>
+        <Text fontSize={12} color={BRAND_COLORS.mediumGray}>
+          Replay the guided tour of every screen.
+        </Text>
+        <Container flexDirection="row">
+          <Button variant="outline" size="sm" onClick={tutorial.start}>
+            <Text>Replay tutorial</Text>
+          </Button>
+        </Container>
       </Card>
     </ScreenScaffold>
   );

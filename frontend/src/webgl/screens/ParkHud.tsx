@@ -64,7 +64,7 @@ export default function ParkHud({ selectedDino, selectedHabitat, clearSelection 
           label="Food P/M/F"
           value={`${player.food.plants}/${player.food.meat}/${player.food.fish}`}
         />
-        <Container flexDirection="row" gap={6} marginTop={4}>
+        <Container flexDirection="row" gap={6} marginTop={4} flexWrap="wrap">
           <Button variant="outline" size="sm" onClick={() => setModal('food')}>
             <Text>Buy Food</Text>
           </Button>
@@ -436,7 +436,7 @@ function BreedModal({
             >
               <Text>
                 {d.id === a ? 'A: ' : d.id === b ? 'B: ' : ''}
-                {d.name} ({d.species})
+                {d.name} ({d.species}, {d.gender})
               </Text>
             </Button>
           );

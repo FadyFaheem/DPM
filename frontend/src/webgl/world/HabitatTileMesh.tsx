@@ -64,25 +64,32 @@ export default function HabitatTileMesh({
         )}
       </mesh>
 
-      <Billboard position={[0, TILE_HEIGHT + 0.7, 0]}>
+      {/* Raised above the dinos; material-depthTest off so dino bodies/health
+          bars never occlude the name (it still renders below the uikit HUD,
+          which draws at a higher renderOrder). */}
+      <Billboard position={[0, TILE_HEIGHT + 2.4, 0]}>
         <Text
-          fontSize={0.32}
+          fontSize={0.42}
           color="#ffffff"
-          outlineWidth={0.02}
+          outlineWidth={0.03}
           outlineColor="#000000"
           anchorX="center"
           anchorY="middle"
+          material-depthTest={false}
+          material-depthWrite={false}
         >
           {habitat.name}
         </Text>
         <Text
-          position={[0, -0.36, 0]}
-          fontSize={0.24}
+          position={[0, -0.42, 0]}
+          fontSize={0.28}
           color={crowded ? crowdedColor : '#e8e8e8'}
-          outlineWidth={0.015}
+          outlineWidth={0.02}
           outlineColor="#000000"
           anchorX="center"
           anchorY="middle"
+          material-depthTest={false}
+          material-depthWrite={false}
         >
           {`${habitat.living_count}/${habitat.capacity}${hasHazard ? '   !' : ''}`}
         </Text>

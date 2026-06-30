@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Container, Fullscreen } from '@react-three/uikit';
+import { Container, DefaultProperties, Fullscreen } from '@react-three/uikit';
 import { useGame } from '../context/PlayerContext';
 import { useScreen } from './ScreenContext';
 import { SCREENS, type ScreenId } from './screensConfig';
 import { WebglStateProvider, useWebgl } from './WebglState';
+import { TutorialProvider } from './TutorialContext';
+import TutorialOverlay from './ui/TutorialOverlay';
 import ParkWorld from './world/ParkWorld';
 import ParkHud from './screens/ParkHud';
 import HabitatsScreen from './screens/HabitatsScreen';
@@ -30,7 +32,10 @@ export default function GameCanvas() {
 
   return (
     <div style={{ position: 'fixed', inset: 0 }}>
-      <Canvas camera={{ position: [0, 16, 22], fov: 50 }}>
+      <Canvas
+        gl={{ localClippingEnabled: true }}
+        camera={{ position: [0, 16, 22], fov: 50 }}
+      >
         <color attach="background" args={[SCENE_BG]} />
         <WebglStateProvider value={value}>
           <GameContent />
@@ -143,7 +148,16 @@ function GameContent() {
           onDeselect={clearSelection}
         />
       )}
-      <Fullscreen flexDirection="column">{body}</Fullscreen>
+      {/* depthTest off + a render order above the world so the HUD is a clean 2D
+          overlay (no z-fighting / scene bleed-through behind panels). */}
+      <Fullscreen flexDirection="column" depthTest={false} renderOrder={1}>
+        <DefaultProperties depthTest={false}>
+          <TutorialProvider>
+            {body}
+            <TutorialOverlay />
+          </TutorialProvider>
+        </DefaultProperties>
+      </Fullscreen>
     </>
   );
 }
