@@ -29,7 +29,10 @@ Rails.application.routes.draw do
     end
 
     resources :habitats, only: [ :index, :create ] do
-      post :upgrade, on: :member
+      member do
+        post :upgrade
+        post :stock
+      end
     end
 
     resources :researches, only: [ :index, :create ]
@@ -41,6 +44,7 @@ Rails.application.routes.draw do
     resource :food, only: [ :create ], controller: "food"
 
     resources :breedings, only: [ :index, :create ] do
+      get :preview, on: :collection
       post :claim, on: :member
     end
   end
