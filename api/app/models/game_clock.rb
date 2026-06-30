@@ -18,4 +18,8 @@ module GameClock
   def age_months(born_at, now = Time.current)
     game_days_between(born_at, now) / DAYS_PER_MONTH
   end
+
+  def real_seconds_for_game_days(days)
+    days * real_minutes_per_game_day * 60
+  end
 end

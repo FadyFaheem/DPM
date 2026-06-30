@@ -18,4 +18,12 @@ RSpec.describe GameClock do
       expect(described_class.age_months(born, born + (30 * 3600))).to be_within(0.001).of(1.0)
     end
   end
+
+  describe ".real_seconds_for_game_days" do
+    it "is the inverse of game_days_between" do
+      from = Time.current
+      seconds = described_class.real_seconds_for_game_days(2)
+      expect(described_class.game_days_between(from, from + seconds)).to be_within(0.001).of(2.0)
+    end
+  end
 end

@@ -19,5 +19,9 @@ Rails.application.routes.draw do
     end
 
     resource :food, only: [ :create ], controller: "food"
+
+    resources :breedings, only: [ :index, :create ] do
+      post :claim, on: :member
+    end
   end
 end
