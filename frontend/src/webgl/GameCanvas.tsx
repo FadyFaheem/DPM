@@ -13,6 +13,7 @@ import SpeciesScreen from './screens/SpeciesScreen';
 import ResearchScreen from './screens/ResearchScreen';
 import ProductionScreen from './screens/ProductionScreen';
 import GoalsScreen from './screens/GoalsScreen';
+import ProfileScreen from './screens/ProfileScreen';
 import TopBar from './ui/TopBar';
 import OnboardingPanel from './ui/OnboardingPanel';
 import InfoPanel from './ui/InfoPanel';
@@ -59,6 +60,7 @@ function Section({ screen }: { screen: ScreenId }) {
   if (screen === 'research') return <ResearchScreen />;
   if (screen === 'production') return <ProductionScreen />;
   if (screen === 'goals') return <GoalsScreen />;
+  if (screen === 'profile') return <ProfileScreen />;
   return (
     <Centered>
       <InfoPanel
