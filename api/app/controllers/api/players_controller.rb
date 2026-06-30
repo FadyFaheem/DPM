@@ -14,7 +14,8 @@ module Api
 
     # GET /api/players/me -- current player with ticked habitats and dinos.
     def me
-      render json: GameSerializer.player(current_player)
+      Simulation::ParkTick.call(current_player)
+      render json: GameSerializer.player(current_player.reload)
     end
   end
 end
