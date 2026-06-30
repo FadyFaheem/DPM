@@ -43,6 +43,7 @@ const SECTIONS: SectionDef[] = [
   { label: 'Species', basePath: '/species' },
   { label: 'Research', basePath: '/research' },
   { label: 'Production', basePath: '/production' },
+  { label: 'Goals', basePath: '/goals' },
   { label: 'Profile', basePath: '/profile' },
 ];
 

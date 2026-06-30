@@ -22,6 +22,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/PlayerContext';
 import type { Dinosaur, ParkEvent } from '../api/players';
 import { feedDino } from '../api/dinosaurs';
@@ -34,6 +36,7 @@ import ActiveEventsPanel from '../components/ActiveEventsPanel';
 
 export default function ParkDashboardPage() {
   const { player, refresh } = useGame();
+  const navigate = useNavigate();
   const [inspected, setInspected] = useState<Dinosaur | null>(null);
   const [breedOpen, setBreedOpen] = useState(false);
   const [foodOpen, setFoodOpen] = useState(false);
@@ -41,6 +44,7 @@ export default function ParkDashboardPage() {
   if (!player) return null;
   const summary = player.summary;
   const vetLabBuilt = player.structures?.built?.some((s) => s.kind === 'vet_lab') ?? false;
+  const won = player.prestige?.won ?? false;
 
   return (
     <Box>
@@ -62,6 +66,21 @@ export default function ParkDashboardPage() {
           </Button>
         </Stack>
       </Stack>
+
+      {won && (
+        <Alert
+          icon={<EmojiEventsIcon fontSize="inherit" />}
+          severity="success"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={() => navigate('/goals')}>
+              Prestige
+            </Button>
+          }
+        >
+          Legendary park achieved — you&apos;ve won! Head to Goals to start New Game+.
+        </Alert>
+      )}
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <SummaryCard label="Population" value={summary.population} />
@@ -106,6 +125,7 @@ export default function ParkDashboardPage() {
       <DinoInspector
         dino={inspected}
         habitats={player.habitats}
+        dinos={player.dinosaurs}
         vetLabBuilt={vetLabBuilt}
         onClose={() => setInspected(null)}
         onChanged={async () => {
