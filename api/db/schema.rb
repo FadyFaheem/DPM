@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_30_050100) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_30_050300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -130,6 +130,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_050100) do
     t.index ["player_id"], name: "index_food_productions_on_player_id"
   end
 
+  create_table "goal_completions", force: :cascade do |t|
+    t.datetime "completed_at", null: false
+    t.datetime "created_at", null: false
+    t.string "goal_key", null: false
+    t.bigint "player_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "goal_key"], name: "index_goal_completions_on_player_id_and_goal_key", unique: true
+    t.index ["player_id"], name: "index_goal_completions_on_player_id"
+  end
+
   create_table "habitats", force: :cascade do |t|
     t.integer "capacity", default: 6, null: false
     t.datetime "created_at", null: false
@@ -156,7 +166,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_050100) do
     t.datetime "last_event_roll_at"
     t.datetime "last_income_at"
     t.string "player_code", null: false
+    t.integer "prestige_level", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.boolean "won", default: false, null: false
     t.index ["player_code"], name: "index_players_on_player_code", unique: true
   end
 
@@ -203,6 +215,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_050100) do
   add_foreign_key "diseases", "dinosaurs"
   add_foreign_key "events", "players"
   add_foreign_key "food_productions", "players"
+  add_foreign_key "goal_completions", "players"
   add_foreign_key "habitats", "players"
   add_foreign_key "researches", "players"
   add_foreign_key "species_unlocks", "players"

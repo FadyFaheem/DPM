@@ -23,9 +23,32 @@ module GameSerializer
       structures: structures(player),
       attractions: attractions(player),
       active_effects: active_effects(player),
+      goals: goals(player),
+      prestige: prestige(player),
       events: events(player),
       created_at: iso(player.created_at),
       updated_at: iso(player.updated_at)
+    }
+  end
+
+  # Goals/achievements with live progress (current vs threshold) and a completed
+  # flag, plus a headline completed/total count for the nav.
+  def goals(player)
+    {
+      completed: player.goal_completions.count,
+      total: GoalCatalog.all.size,
+      catalog: Goals::Evaluation.snapshot(player)
+    }
+  end
+
+  # Prestige / New Game+ state: current level, the resulting income multiplier,
+  # whether the win condition is met, and whether prestige is available.
+  def prestige(player)
+    {
+      level: player.prestige_level,
+      multiplier: player.income_multiplier.round(2),
+      won: player.won,
+      can_prestige: player.won
     }
   end
 

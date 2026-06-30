@@ -11,6 +11,8 @@ Rails.application.routes.draw do
       get :me, on: :collection
     end
 
+    resource :prestige, only: [ :create ], controller: "prestige"
+
     resources :dinosaurs, only: [ :show ] do
       member do
         post :feed
