@@ -9,6 +9,7 @@ import { WebglStateProvider, useWebgl } from './WebglState';
 import ParkWorld from './world/ParkWorld';
 import ParkHud from './screens/ParkHud';
 import HabitatsScreen from './screens/HabitatsScreen';
+import SpeciesScreen from './screens/SpeciesScreen';
 import TopBar from './ui/TopBar';
 import OnboardingPanel from './ui/OnboardingPanel';
 import InfoPanel from './ui/InfoPanel';
@@ -45,6 +46,21 @@ function Centered({ children }: { children: ReactNode }) {
 
 function screenLabel(id: ScreenId): string {
   return SCREENS.find((s) => s.id === id)?.label ?? id;
+}
+
+// Renders the active non-park section, falling back to a placeholder for screens
+// not yet migrated to WebGL.
+function Section({ screen }: { screen: ScreenId }) {
+  if (screen === 'habitats') return <HabitatsScreen />;
+  if (screen === 'species') return <SpeciesScreen />;
+  return (
+    <Centered>
+      <InfoPanel
+        title={`${screenLabel(screen)} - coming soon`}
+        message="This screen is being rebuilt in 3D in an upcoming update."
+      />
+    </Centered>
+  );
 }
 
 function GameContent() {
@@ -94,16 +110,7 @@ function GameContent() {
     body = (
       <>
         <TopBar />
-        {screen === 'habitats' ? (
-          <HabitatsScreen />
-        ) : (
-          <Centered>
-            <InfoPanel
-              title={`${screenLabel(screen)} - coming soon`}
-              message="This screen is being rebuilt in 3D in an upcoming update."
-            />
-          </Centered>
-        )}
+        <Section screen={screen} />
       </>
     );
   }
