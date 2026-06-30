@@ -18,7 +18,15 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :habitats, only: [ :index, :create ]
+    resources :habitats, only: [ :index, :create ] do
+      post :upgrade, on: :member
+    end
+
+    resources :researches, only: [ :index, :create ]
+
+    resources :food_productions, only: [ :index, :create ] do
+      post :upgrade, on: :member
+    end
 
     resource :food, only: [ :create ], controller: "food"
 

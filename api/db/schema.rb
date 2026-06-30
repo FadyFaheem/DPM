@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_30_000319) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_30_010300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,10 +63,32 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_000319) do
     t.index ["player_id"], name: "index_dinosaurs_on_player_id"
   end
 
+  create_table "events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "kind", null: false
+    t.string "message", null: false
+    t.bigint "player_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "created_at"], name: "index_events_on_player_id_and_created_at"
+    t.index ["player_id"], name: "index_events_on_player_id"
+  end
+
+  create_table "food_productions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "kind", null: false
+    t.datetime "last_collected_at"
+    t.integer "level", default: 1, null: false
+    t.bigint "player_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "kind"], name: "index_food_productions_on_player_id_and_kind"
+    t.index ["player_id"], name: "index_food_productions_on_player_id"
+  end
+
   create_table "habitats", force: :cascade do |t|
     t.integer "capacity", default: 6, null: false
     t.datetime "created_at", null: false
     t.integer "happiness_modifier", default: 0, null: false
+    t.integer "level", default: 1, null: false
     t.string "name", null: false
     t.bigint "player_id", null: false
     t.string "terrain", null: false
@@ -87,6 +109,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_000319) do
     t.index ["player_code"], name: "index_players_on_player_code", unique: true
   end
 
+  create_table "researches", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "player_id", null: false
+    t.string "tech_key", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "tech_key"], name: "index_researches_on_player_id_and_tech_key", unique: true
+    t.index ["player_id"], name: "index_researches_on_player_id"
+  end
+
   add_foreign_key "breedings", "dinosaurs", column: "offspring_id"
   add_foreign_key "breedings", "dinosaurs", column: "parent_a_id"
   add_foreign_key "breedings", "dinosaurs", column: "parent_b_id"
@@ -95,5 +126,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_000319) do
   add_foreign_key "dinosaurs", "dinosaurs", column: "parent_b_id"
   add_foreign_key "dinosaurs", "habitats"
   add_foreign_key "dinosaurs", "players"
+  add_foreign_key "events", "players"
+  add_foreign_key "food_productions", "players"
   add_foreign_key "habitats", "players"
+  add_foreign_key "researches", "players"
 end

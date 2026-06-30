@@ -17,8 +17,39 @@ module GameSerializer
       habitats: player.habitats.order(:id).map { |h| habitat(h, living_by_habitat[h.id] || 0) },
       dinosaurs: dinos.map { |d| dinosaur(d) },
       summary: summary(living),
+      research: research(player),
+      food_productions: food_productions(player),
+      events: events(player),
       created_at: iso(player.created_at),
       updated_at: iso(player.updated_at)
+    }
+  end
+
+  # Most recent park activity (births, deaths, research, builds, upgrades).
+  def events(player, limit = 20)
+    player.events.recent(limit).map do |event|
+      { id: event.id, kind: event.kind, message: event.message, created_at: iso(event.created_at) }
+    end
+  end
+
+  # Research tree: every tech in the catalog with an `unlocked` flag, plus the
+  # flat list of unlocked keys for quick client-side gating.
+  def research(player)
+    unlocked = player.researches.pluck(:tech_key)
+    {
+      unlocked: unlocked,
+      catalog: ResearchCatalog.all.map do |tech|
+        {
+          key: tech.key,
+          name: tech.name,
+          description: tech.description,
+          cost: tech.cost,
+          prerequisites: tech.prerequisites,
+          requires_population: tech.requires_population,
+          unlocks: tech.unlocks,
+          unlocked: unlocked.include?(tech.key)
+        }
+      end
     }
   end
 
@@ -36,12 +67,46 @@ module GameSerializer
     }
   end
 
+  # Food-production buildings: the player's built farms plus the catalog of
+  # buildable kinds with an `unlocked` flag derived from researched tech.
+  def food_productions(player)
+    unlocked = player.researches.pluck(:tech_key)
+    {
+      buildings: player.food_productions.order(:id).map { |b| food_production(b) },
+      catalog: FoodProductionCatalog.all.map do |spec|
+        {
+          kind: spec.kind,
+          name: spec.name,
+          food_column: spec.food_column,
+          base_output_per_day: spec.base_output_per_day,
+          build_cost: spec.build_cost,
+          required_tech: spec.required_tech,
+          unlocked: unlocked.include?(spec.required_tech)
+        }
+      end
+    }
+  end
+
+  def food_production(building)
+    spec = FoodProductionCatalog.find(building.kind)
+    {
+      id: building.id,
+      kind: building.kind,
+      name: spec&.name,
+      level: building.level,
+      food_column: spec&.food_column,
+      output_per_day: spec ? spec.base_output_per_day * building.level : 0,
+      last_collected_at: iso(building.last_collected_at)
+    }
+  end
+
   def habitat(habitat, living_count)
     {
       id: habitat.id,
       name: habitat.name,
       terrain: habitat.terrain,
       capacity: habitat.capacity,
+      level: habitat.level,
       happiness_modifier: habitat.happiness_modifier,
       living_count: living_count
     }
