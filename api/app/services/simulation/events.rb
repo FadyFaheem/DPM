@@ -7,6 +7,9 @@ module Simulation
   # game-day never re-roll. Expired effects are swept on every read.
   class Events
     MAX_CATCHUP_DAYS = 3650
+    # environmental_control research softens an event's penalty by this fraction
+    # (pulls its output multiplier this far back toward 1.0 = no impact).
+    MITIGATION = 0.5
 
     def self.call(player, now: Time.current)
       new(player, now).call
@@ -24,6 +27,7 @@ module Simulation
       return @player if days <= 0
 
       days = [ days, MAX_CATCHUP_DAYS ].min
+      @mitigated = @player.researches.exists?(tech_key: "environmental_control")
       @farms = @player.food_productions.order(:id).to_a
       @habitats = @player.habitats.order(:id).to_a
       days.times { |i| roll_day(since + GameClock.real_seconds_for_game_days(i + 1)) }
@@ -77,10 +81,18 @@ module Simulation
       # over (normal reads happen every <=1 game-day, so nothing real is missed).
       return if expires_at <= @now
 
-      attrs = { kind: spec.kind, multiplier: spec.multiplier, expires_at: expires_at }
+      attrs = { kind: spec.kind, multiplier: mitigated_multiplier(spec), expires_at: expires_at }
       attrs[spec.scope == :food_production ? :food_production : :habitat] = target
       @player.active_effects.create!(attrs)
       Event.log(@player, "event", "#{spec.name} struck #{target_label(target)}", now: day_end)
+    end
+
+    # environmental_control pulls an event's penalty multiplier toward 1.0, so a
+    # mitigated drought/flood/heat spike throttles output far less.
+    def mitigated_multiplier(spec)
+      return spec.multiplier unless @mitigated
+
+      spec.multiplier + (1.0 - spec.multiplier) * MITIGATION
     end
 
     def target_label(target)

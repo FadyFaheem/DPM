@@ -3,14 +3,16 @@ module Reproduction
   module Genetics
     MUTATIONS = %w[shiny giant dwarf].freeze
     MUTATION_CHANCE = 0.08
+    # Odds when the player has researched mutation_rate_boost (wired in Hatch).
+    BOOSTED_MUTATION_CHANCE = 0.30
     DIET_INHERIT_CHANCE = 0.8
     GIANT_FACTOR = 1.2
     DWARF_FACTOR = 0.8
 
     module_function
 
-    def roll_mutations(rng = Random.new)
-      return [] if rng.rand >= MUTATION_CHANCE
+    def roll_mutations(rng = Random.new, chance: MUTATION_CHANCE)
+      return [] if rng.rand >= chance
 
       [ MUTATIONS.sample(random: rng) ]
     end

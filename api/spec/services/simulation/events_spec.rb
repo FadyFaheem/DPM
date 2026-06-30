@@ -71,4 +71,26 @@ RSpec.describe Simulation::Events do
 
     expect(ActiveEffect.exists?(effect.id)).to be(true)
   end
+
+  describe "environmental control mitigation" do
+    it "softens an event's penalty for players who researched environmental_control" do
+      stub_const("EventEffectCatalog::DAILY_CHANCE", 1.0)
+
+      player.update!(last_event_roll_at: now - 6.hours)
+      described_class.call(player, now: now)
+      base = player.active_effects.order(:id).first
+      base_kind = base.kind
+      base_multiplier = base.multiplier
+
+      player.active_effects.delete_all
+      player.researches.create!(tech_key: "environmental_control")
+      player.update!(last_event_roll_at: now - 6.hours)
+      described_class.call(player, now: now)
+
+      mitigated = player.active_effects.find_by(kind: base_kind)
+      expected = base_multiplier + (1.0 - base_multiplier) * described_class::MITIGATION
+      expect(mitigated.multiplier).to be > base_multiplier
+      expect(mitigated.multiplier).to be_within(0.0001).of(expected)
+    end
+  end
 end

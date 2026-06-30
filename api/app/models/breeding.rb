@@ -8,6 +8,8 @@ class Breeding < ApplicationRecord
 
   validates :status, inclusion: { in: STATUSES }
   validates :hatches_at, presence: true
+  # Manual trait selection (genetic engineering lab); nil means roll naturally.
+  validates :requested_trait, inclusion: { in: ->(_) { Reproduction::Genetics::MUTATIONS } }, allow_nil: true
 
   scope :incubating, -> { where(status: "incubating") }
 

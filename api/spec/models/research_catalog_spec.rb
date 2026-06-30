@@ -20,4 +20,24 @@ RSpec.describe ResearchCatalog do
   it "returns nil for an unknown key" do
     expect(described_class.find("time_travel")).to be_nil
   end
+
+  it "adds the Phase 3C higher-tier technologies" do
+    expect(described_class.keys).to include(
+      "genetic_trait_viewing", "environmental_control", "genetic_engineering_lab",
+      "mutation_rate_boost", "piscivore_unlock", "attractions"
+    )
+  end
+
+  it "gates the genetic engineering lab behind trait viewing and the mutation boost" do
+    tech = described_class.find("genetic_engineering_lab")
+    expect(tech.prerequisites).to contain_exactly("genetic_trait_viewing", "mutation_rate_boost")
+  end
+
+  it "gates piscivore husbandry behind fishing ponds" do
+    expect(described_class.find("piscivore_unlock").prerequisites).to eq(%w[fishing_ponds])
+  end
+
+  it "gates attractions behind a population milestone" do
+    expect(described_class.find("attractions").requires_population).to eq(6)
+  end
 end
