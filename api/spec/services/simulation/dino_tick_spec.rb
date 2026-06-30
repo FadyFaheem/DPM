@@ -15,10 +15,10 @@ RSpec.describe Simulation::DinoTick do
     expect { described_class.call(d, now: Time.current) }.not_to(change { d.reload.hunger })
   end
 
-  it "increases hunger as game-days pass" do
-    d = dino(stats_updated_at: 10.hours.ago, hunger: 0)
+  it "leaves hunger to the consumption pass" do
+    d = dino(stats_updated_at: 10.hours.ago, hunger: 30)
     described_class.call(d, now: Time.current)
-    expect(d.reload.hunger).to be > 0
+    expect(d.reload.hunger).to eq(30)
   end
 
   it "kills a long-neglected, starving dino" do

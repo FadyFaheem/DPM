@@ -3,7 +3,6 @@ module Simulation
   # compute-on-read: elapsed real time is converted to game-days and applied
   # one day at a time. No background workers required.
   class DinoTick
-    HUNGER_PER_DAY = 12.0
     STARVING_AT = 80.0
     READINESS_PER_DAY = 8.0
     # ponytail: cap idle catch-up (~10 game-years); add a scheduled job if a
@@ -40,7 +39,7 @@ module Simulation
     private
 
     def advance_day(env)
-      @dino.hunger = clamp(@dino.hunger + HUNGER_PER_DAY)
+      # Hunger is governed by Simulation::Consumption; DinoTick only reads it.
       @dino.happiness = clamp(HealthFormula.happiness(happiness_modifier: env[:happiness_modifier], **env[:conditions]))
       @dino.reproduction_readiness = readiness_after
       delta = HealthFormula.daily_health_delta(
