@@ -15,12 +15,25 @@ module Economy
   HABITAT_UPGRADE_BASE = 2_000
   HABITAT_CAPACITY_STEP = 3
   TREATMENT_COST_PER_DISEASE = 600
+  ATTRACTION_UPGRADE_BASE = 4_000
+  # A built research station discounts every research unlock to this fraction.
+  RESEARCH_STATION_DISCOUNT = 0.8
 
   module_function
 
   # Cost to raise a food-production building from `level` to `level + 1`.
   def food_production_upgrade_cost(level)
     FOOD_PRODUCTION_UPGRADE_BASE * level
+  end
+
+  # Cost to raise an attraction from `level` to `level + 1`.
+  def attraction_upgrade_cost(level)
+    ATTRACTION_UPGRADE_BASE * level
+  end
+
+  # A tech's effective cost, discounted when the player owns a research station.
+  def research_cost(base_cost, research_station:)
+    research_station ? (base_cost * RESEARCH_STATION_DISCOUNT).round : base_cost
   end
 
   # Cost to raise a habitat from `level` to `level + 1`.

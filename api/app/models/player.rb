@@ -7,6 +7,8 @@ class Player < ApplicationRecord
   has_many :events, dependent: :destroy
   has_many :structures, dependent: :destroy
   has_many :active_effects, dependent: :destroy
+  has_many :species_unlocks, dependent: :destroy
+  has_many :attractions, dependent: :destroy
 
   # Maps a diet to the food store it draws from (insects forage from plants).
   FOOD_COLUMN = {
@@ -26,5 +28,14 @@ class Player < ApplicationRecord
 
   def structure?(kind)
     structures.exists?(kind: kind)
+  end
+
+  # A species is available to acquire/breed once it is a starter or has been
+  # unlocked (recorded in species_unlocks).
+  def species_unlocked?(key)
+    entry = Species.find(key)
+    return false unless entry
+
+    entry.starter || species_unlocks.exists?(species_key: entry.key)
   end
 end

@@ -42,4 +42,23 @@ RSpec.describe Reproduction::Hatch do
     expect(offspring.mutation_traits).to eq([ "giant" ])
     expect(offspring.size_lbs).to eq((1000 * 1.2).round) # both parents are 1000 lbs -> avg 1000
   end
+
+  it "rolls mutations at the boosted chance when the player researched mutation_rate_boost" do
+    player.researches.create!(tech_key: "mutation_rate_boost")
+
+    expect(Reproduction::Genetics).to receive(:roll_mutations)
+      .with(anything, chance: Reproduction::Genetics::BOOSTED_MUTATION_CHANCE).and_return([])
+
+    described_class.call(breeding, rng: Random.new(7))
+  end
+
+  it "guarantees a requested trait without rolling (genetic engineering lab)" do
+    breeding.update!(requested_trait: "giant")
+    expect(Reproduction::Genetics).not_to receive(:roll_mutations)
+
+    offspring = described_class.call(breeding, rng: Random.new(7))
+
+    expect(offspring.mutation_traits).to eq([ "giant" ])
+    expect(offspring.size_lbs).to eq((1000 * 1.2).round)
+  end
 end

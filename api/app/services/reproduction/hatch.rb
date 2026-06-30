@@ -16,7 +16,7 @@ module Reproduction
 
     def call
       entry = Species.find(@rng.rand < 0.5 ? @parent_a.species : @parent_b.species)
-      mutations = Genetics.roll_mutations(@rng)
+      mutations = mutations_for
 
       offspring = @breeding.player.dinosaurs.create!(offspring_attributes(entry, mutations))
       @breeding.update!(status: "claimed", offspring: offspring)
@@ -25,6 +25,23 @@ module Reproduction
     end
 
     private
+
+    # A breeding started with a requested_trait (via the genetic engineering lab)
+    # guarantees that mutation; otherwise roll, boosted if the player researched
+    # mutation_rate_boost.
+    def mutations_for
+      return [ @breeding.requested_trait ] if @breeding.requested_trait.present?
+
+      Genetics.roll_mutations(@rng, chance: mutation_chance)
+    end
+
+    def mutation_chance
+      if @breeding.player.researches.exists?(tech_key: "mutation_rate_boost")
+        Genetics::BOOSTED_MUTATION_CHANCE
+      else
+        Genetics::MUTATION_CHANCE
+      end
+    end
 
     def offspring_attributes(entry, mutations)
       {

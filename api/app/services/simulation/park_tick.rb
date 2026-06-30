@@ -10,6 +10,7 @@ module Simulation
       Consumption.call(player, now:)
       player.dinosaurs.alive.find_each { |dino| DinoTick.call(dino, now:) }
       Economy.passive_income(player, now:)
+      AttractionIncome.call(player, now:)
       player
     end
   end

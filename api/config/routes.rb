@@ -22,6 +22,12 @@ Rails.application.routes.draw do
 
     resources :structures, only: [ :index, :create ]
 
+    resources :species, only: [ :index, :create ]
+
+    resources :attractions, only: [ :index, :create ] do
+      post :upgrade, on: :member
+    end
+
     resources :habitats, only: [ :index, :create ] do
       post :upgrade, on: :member
     end

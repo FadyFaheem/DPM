@@ -34,6 +34,32 @@ RSpec.describe "Api::Breedings", type: :request do
       post "/api/breedings", params: { parent_a_id: dad.id, parent_b_id: mom.id }, headers: headers
       expect(response).to have_http_status(:unprocessable_entity)
     end
+
+    it "rejects a requested trait without the genetic engineering lab" do
+      post "/api/breedings",
+           params: { parent_a_id: dad.id, parent_b_id: mom.id, requested_trait: "giant" }, headers: headers
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)["error"]).to match(/genetic_engineering_lab/)
+    end
+
+    it "stores a requested trait once the lab is researched" do
+      player.researches.create!(tech_key: "genetic_engineering_lab")
+      post "/api/breedings",
+           params: { parent_a_id: dad.id, parent_b_id: mom.id, requested_trait: "giant" }, headers: headers
+
+      expect(response).to have_http_status(:created)
+      expect(Breeding.last.requested_trait).to eq("giant")
+    end
+
+    it "incubates faster when a hatchery is built" do
+      player.structures.create!(kind: "hatchery")
+
+      post "/api/breedings", params: { parent_a_id: dad.id, parent_b_id: mom.id }, headers: headers
+
+      expect(response).to have_http_status(:created)
+      hatches_at = Time.zone.parse(JSON.parse(response.body)["hatches_at"])
+      expect(hatches_at).to be_within(5.minutes).of(Time.current + GameClock.real_seconds_for_game_days(1))
+    end
   end
 
   describe "POST /api/breedings/:id/claim" do

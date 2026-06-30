@@ -18,8 +18,10 @@ module GameSerializer
       dinosaurs: dinos.map { |d| dinosaur(d) },
       summary: summary(living),
       research: research(player),
+      species: species(player),
       food_productions: food_productions(player),
       structures: structures(player),
+      attractions: attractions(player),
       active_effects: active_effects(player),
       events: events(player),
       created_at: iso(player.created_at),
@@ -68,6 +70,37 @@ module GameSerializer
           requires_population: tech.requires_population,
           unlocks: tech.unlocks,
           unlocked: unlocked.include?(tech.key)
+        }
+      end
+    }
+  end
+
+  # Species catalog with per-player flags: `unlocked` (a starter or previously
+  # acquired) and `owned_count` (living specimens). Acquisition gates
+  # (acquire_cost / required_tech / requires_population) are surfaced so the
+  # client can render lock state, mirroring the research tree.
+  def species(player)
+    unlocked_keys = player.species_unlocks.pluck(:species_key)
+    owned = player.dinosaurs.alive.group_by(&:species).transform_values(&:size)
+    {
+      periods: Species::PERIODS,
+      catalog: Species.all.map do |s|
+        {
+          key: s.key,
+          name: s.name,
+          period: s.period,
+          diet_primary: s.diet_primary,
+          diet_secondary: s.diet_secondary,
+          preferred_terrain: s.preferred_terrain,
+          social_structure: s.social_structure,
+          base_size_lbs: s.base_size_lbs,
+          rarity: s.rarity,
+          starter: s.starter,
+          acquire_cost: s.acquire_cost,
+          required_tech: s.required_tech,
+          requires_population: s.requires_population,
+          unlocked: s.starter || unlocked_keys.include?(s.key),
+          owned_count: owned[s.key] || 0
         }
       end
     }
@@ -125,6 +158,36 @@ module GameSerializer
           required_tech: spec.required_tech,
           unlocked: unlocked.include?(spec.required_tech),
           built: built.include?(spec.kind)
+        }
+      end
+    }
+  end
+
+  # Theme-park attractions: the player's built attractions (with current
+  # income/day) plus the catalog of buildable kinds, gated by the `attractions`
+  # research.
+  def attractions(player)
+    unlocked = player.researches.pluck(:tech_key)
+    {
+      built: player.attractions.order(:id).map do |a|
+        spec = AttractionCatalog.find(a.kind)
+        {
+          id: a.id,
+          kind: a.kind,
+          name: spec&.name,
+          level: a.level,
+          income_per_day: spec ? spec.income_per_day * a.level : 0,
+          last_collected_at: iso(a.last_collected_at)
+        }
+      end,
+      catalog: AttractionCatalog.all.map do |spec|
+        {
+          kind: spec.kind,
+          name: spec.name,
+          income_per_day: spec.income_per_day,
+          build_cost: spec.build_cost,
+          required_tech: spec.required_tech,
+          unlocked: unlocked.include?(spec.required_tech)
         }
       end
     }

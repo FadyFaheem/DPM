@@ -15,6 +15,23 @@ RSpec.describe Reproduction::Genetics do
       expect(result.size).to be <= 1
       expect(result - described_class::MUTATIONS).to be_empty
     end
+
+    it "never mutates at chance 0 and always mutates at chance 1" do
+      expect(described_class.roll_mutations(Random.new(1), chance: 0.0)).to eq([])
+      expect(described_class.roll_mutations(Random.new(1), chance: 1.0).size).to eq(1)
+    end
+
+    it "mutates more often at the boosted chance than the base chance for the same seed" do
+      # A seed whose first roll lands between the base and boosted thresholds:
+      # rejected at the base rate but accepted once mutation_rate_boost applies.
+      seed = (1..500).find do |s|
+        roll = Random.new(s).rand
+        roll >= described_class::MUTATION_CHANCE && roll < described_class::BOOSTED_MUTATION_CHANCE
+      end
+
+      expect(described_class.roll_mutations(Random.new(seed))).to eq([])
+      expect(described_class.roll_mutations(Random.new(seed), chance: described_class::BOOSTED_MUTATION_CHANCE).size).to eq(1)
+    end
   end
 
   describe ".inherit_color" do
