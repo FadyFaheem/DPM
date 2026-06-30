@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Box, CircularProgress, CssBaseline, ThemeProvider, Typography } from '@mui/material';
 import { PlayerProvider, useGame } from './context/PlayerContext';
 import AppLayout from './components/AppLayout';
-import DashboardPage from './pages/DashboardPage';
+import ParkDashboardPage from './pages/ParkDashboardPage';
+import HabitatsPage from './pages/HabitatsPage';
 import ProfilePage from './pages/ProfilePage';
 import { appTheme } from './theme/theme';
 
@@ -28,7 +29,8 @@ function GameRoutes() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route index element={<DashboardPage />} />
+        <Route index element={<ParkDashboardPage />} />
+        <Route path="habitats" element={<HabitatsPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
