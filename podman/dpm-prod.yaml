@@ -34,8 +34,11 @@ spec:
               key: db-password
         - name: POSTGRES_DB
           value: dpm-prod-db
+        # PGPORT moves prod Postgres off 5432 so it can run alongside the dev pod.
+        - name: PGPORT
+          value: "5433"
       # Note: ports section removed - with hostNetwork: true, containers use host network directly.
-      # PostgreSQL will be accessible on port 5432 on the host.
+      # PostgreSQL will be accessible on port 5433 on the host.
       volumeMounts:
         - name: pgdata
           mountPath: /var/lib/postgresql
@@ -46,12 +49,12 @@ spec:
       command: ["/bin/sh"]
       # Install libpq, bundle gems, then boot Rails. Add `rails db:prepare &&`
       # before the server once you introduce migrations.
-      args: ["-c", "cd /app && apt-get update && apt-get install -y --no-install-recommends libpq-dev && bundle install && exec bundle exec rails server -b 0.0.0.0 -p 5000"]
+      args: ["-c", "cd /app && apt-get update && apt-get install -y --no-install-recommends libpq-dev && bundle install && exec bundle exec rails server -b 0.0.0.0 -p 5001"]
       env:
         - name: DB_HOST
           value: localhost
         - name: DB_PORT
-          value: "5432"
+          value: "5433"
         - name: DB_NAME
           value: dpm-prod-db
         - name: DB_USER
@@ -64,14 +67,14 @@ spec:
         - name: RAILS_ENV
           value: production
         - name: PORT
-          value: "5000"
+          value: "5001"
         - name: SECRET_KEY_BASE
           valueFrom:
             secretKeyRef:
               name: dpm-prod-secrets
               key: secret-key-base
       # Note: ports section removed - with hostNetwork: true, containers use host network directly.
-      # Rails API will be accessible on port 5000 on the host.
+      # Rails API will be accessible on port 5001 on the host.
       volumeMounts:
         # Read-write: Rails writes to tmp/ and log/.
         - name: api-code
@@ -85,14 +88,14 @@ spec:
     - name: react-frontend
       image: docker.io/node:20-alpine
       command: ["/bin/sh"]
-      args: ["-c", "cd /app && npm install && npm run build && npx -y serve -s dist -l 80"]
+      args: ["-c", "cd /app && npm install && npm run build && npx -y serve -s dist -l 8080"]
       env:
         # VITE_API_URL is not set -- the frontend uses window.location.origin so /api/* hits
         # whatever host served the page (cloudflared routes /api/* to the Rails API).
         - name: HOST
           value: "0.0.0.0"
         - name: PORT
-          value: "80"
+          value: "8080"
       # Note: ports section removed - with hostNetwork: true, containers use host network directly.
       volumeMounts:
         - name: frontend-code
