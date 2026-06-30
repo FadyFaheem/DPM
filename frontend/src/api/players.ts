@@ -42,6 +42,22 @@ export interface ParkSummary {
   critical: number;
 }
 
+export interface ResearchTech {
+  key: string;
+  name: string;
+  description: string;
+  cost: number;
+  prerequisites: string[];
+  requires_population: number;
+  unlocks: string[];
+  unlocked: boolean;
+}
+
+export interface ResearchState {
+  unlocked: string[];
+  catalog: ResearchTech[];
+}
+
 export interface Player {
   id: number;
   player_code: string;
@@ -51,6 +67,7 @@ export interface Player {
   habitats: Habitat[];
   dinosaurs: Dinosaur[];
   summary: ParkSummary;
+  research: ResearchState;
 }
 
 export function createPlayer(): Promise<Player> {
