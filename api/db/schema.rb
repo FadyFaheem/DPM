@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_30_030100) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_30_030200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -107,6 +107,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_030100) do
     t.datetime "last_collected_at"
     t.integer "level", default: 1, null: false
     t.bigint "player_id", null: false
+    t.integer "prey_capacity", default: 0, null: false
+    t.integer "prey_population", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["player_id", "kind"], name: "index_food_productions_on_player_id_and_kind"
     t.index ["player_id"], name: "index_food_productions_on_player_id"

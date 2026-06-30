@@ -139,6 +139,9 @@ module GameSerializer
       level: building.level,
       food_column: spec&.food_column,
       output_per_day: spec ? spec.base_output_per_day * building.level : 0,
+      prey: building.prey?,
+      prey_population: building.prey_population,
+      prey_capacity: building.prey_capacity,
       last_collected_at: iso(building.last_collected_at)
     }
   end
