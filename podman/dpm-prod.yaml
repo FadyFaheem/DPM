@@ -69,14 +69,14 @@ spec:
         - name: RAILS_ENV
           value: production
         - name: PORT
-          value: "18080"
+          value: "18081"
         - name: SECRET_KEY_BASE
           valueFrom:
             secretKeyRef:
               name: dpm-prod-secrets
               key: secret-key-base
       # Note: ports section removed - with hostNetwork: true, containers use host network directly.
-      # Rails API will be accessible on port 18080 on the host.
+      # Rails API will be accessible on port 18081 on the host.
       volumeMounts:
         # Read-write: Rails writes to tmp/ and log/.
         - name: api-code
